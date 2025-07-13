@@ -1,0 +1,8 @@
+exporters:
+  - name: mac_node_exporter
+    exec_path: "/usr/local/bin/node_exporter"
+    port: 9100
+    job_name: "mac"
+    options: "--web.listen-address=:9100"
+    args: ""
+  

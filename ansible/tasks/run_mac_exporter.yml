@@ -1,0 +1,23 @@
+- name: Run Exporters on Mac
+  hosts: localhost
+  gather_facts: false
+
+  vars_files:
+    - ../vars/exporters_mac.yml
+
+  tasks:
+    - name: Run exporters (macOS)
+      shell: |
+        nohup {{ item.exec_path }} {{ item.options | default('') }} {{ item.args | default('') }} > /tmp/{{ item.name }}.log 2>&1 &
+      with_items: "{{ exporters }}"
+      register: exporter_run
+
+    - name: Check Exporter Status (HTTP endpoint)
+      uri:
+        url: "http://localhost:{{ item.port }}/metrics"
+        method: GET
+        status_code: 200
+        return_content: no
+      with_items: "{{ exporters }}"
+      ignore_errors: yes
+      register: exporter_status
