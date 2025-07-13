@@ -1,0 +1,17 @@
+- name: Get Mac IPv4 Address (Internal & Public)
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    mac_interface: "en0"
+    mac_ipv4: "{{ lookup('pipe', 'ipconfig getifaddr %s' % mac_interface) }}"
+    public_ipv4: "{{ lookup('pipe', 'curl -s https://api.ipify.org') }}"
+
+  tasks:
+    - name: Print Mac 내부 IP
+      debug:
+        msg: "Mac IPv4 Address: {{ mac_ipv4 }}"
+
+    - name: Print 공인 IP
+      debug:
+        msg: "Public IPv4 Address: {{ public_ipv4 }}"
