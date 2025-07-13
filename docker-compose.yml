@@ -7,16 +7,21 @@ services:
     ports:
       - "53000:3000"
     environment:
-      - POSTGRES_HOST=postgres
+      - POSTGRES_HOST=postgres_defense
       - POSTGRES_PORT=5432
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=defense
+      - POSTGRES_DB=postgres_defense
     networks:
       - defense
     volumes:
       - ./was1:/app
     working_dir: /app
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4g
 
   was2:
     build:
@@ -26,30 +31,41 @@ services:
     ports:
       - "53001:3000"
     environment:
-      - POSTGRES_HOST=postgres
+      - POSTGRES_HOST=postgres_defense
       - POSTGRES_PORT=5432
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=defense
+      - POSTGRES_DB=postgres_defense
     networks:
       - defense
     volumes:
       - ./was2:/app
     working_dir: /app
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4g
 
   postgres:
     image: postgres:latest
-    container_name: postgres-defense
+    container_name: postgres_defense
     ports:
       - "55432:5432"
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=defense
+      - POSTGRES_DB=postgres_defense
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./was2/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - pgdata_defense:/var/lib/postgresql/data
     networks:
       - defense
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4g
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
@@ -69,4 +85,4 @@ networks:
     driver: bridge
 
 volumes:
-  pgdata:
+  pgdata_defense:
