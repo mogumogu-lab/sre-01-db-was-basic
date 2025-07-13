@@ -17,6 +17,7 @@ services:
     volumes:
       - ./was1:/app
     working_dir: /app
+    command: pnpm dev
     deploy:
       resources:
         limits:
@@ -41,6 +42,7 @@ services:
     volumes:
       - ./was2:/app
     working_dir: /app
+    command: pnpm dev
     deploy:
       resources:
         limits:

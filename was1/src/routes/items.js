@@ -3,13 +3,13 @@ const WAS2_BASE_URL = 'http://was2:3000';
 export default async function (fastify, opts) {
     async function proxyToWas2(req, reply, path, method = 'GET') {
         const url = `${WAS2_BASE_URL}${path}`;
-        const fetchOptions = {
-            method,
-            headers: { ...req.headers, host: undefined, connection: undefined },
-        };
+        const headers = {};
+        if (req.headers['authorization']) headers['authorization'] = req.headers['authorization'];
+        if (req.body) headers['content-type'] = 'application/json';
+
+        const fetchOptions = { method, headers };
         if (req.body) {
             fetchOptions.body = JSON.stringify(req.body);
-            fetchOptions.headers['content-type'] = 'application/json';
         }
         const res = await fetch(url, fetchOptions);
         const data = await res.json();
