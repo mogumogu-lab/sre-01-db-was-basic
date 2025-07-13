@@ -1,0 +1,72 @@
+services:
+  was1:
+    build:
+      context: ./was1
+      dockerfile: Dockerfile
+    container_name: was1
+    ports:
+      - "53000:3000"
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=defense
+    networks:
+      - defense
+    volumes:
+      - ./was1:/app
+    working_dir: /app
+
+  was2:
+    build:
+      context: ./was2
+      dockerfile: Dockerfile
+    container_name: was2
+    ports:
+      - "53001:3000"
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=defense
+    networks:
+      - defense
+    volumes:
+      - ./was2:/app
+    working_dir: /app
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres-defense
+    ports:
+      - "55432:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=defense
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - defense
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - "58080:8080"
+    networks:
+      - defense
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+
+networks:
+  defense:
+    driver: bridge
+
+volumes:
+  pgdata:
