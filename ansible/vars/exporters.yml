@@ -1,0 +1,21 @@
+exporters:
+  - name: windows_exporter
+    exec_path: "/mnt/c/exporters/windows_exporter-0.31.0-amd64.exe"
+    port: 9182
+    job_name: "windows"
+    options: '--web.listen-address="0.0.0.0:9182"'
+    args: ""
+
+  - name: wsl_node_exporter
+    exec_path: "/opt/node_exporter/node_exporter"
+    port: 9100
+    job_name: "wsl"
+    options: '--web.listen-address=":9100"'
+    args: ""
+
+  # - name: docker_node_exporter
+  #   exec_path: "/usr/local/bin/node_exporter"
+  #   port: 9100
+  #   job_name: "docker"
+  #   target: "{{ docker_ip }}:9100"
+  #   args: ""

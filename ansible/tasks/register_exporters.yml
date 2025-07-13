@@ -1,0 +1,43 @@
+- name: Register exporters to Prometheus (WSL)
+  hosts: localhost
+  vars_files:
+    - ../vars/exporters.yml
+    - ../vars/secrets.yml
+
+  vars:
+    interface_alias: "이더넷"
+    windows_ipv4: "{{ lookup('pipe', 'powershell.exe -Command \"(Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias ''%s'').IPAddress\"' % interface_alias) }}"
+    prometheus_config: "/opt/prometheus/prometheus.yml"
+    prometheus_config_preview: "./prometheus.generated.yml"
+
+  tasks:
+    - name: Generate exporters_with_ip from exporters
+      set_fact:
+        exporters_with_ip: "{{ exporters_with_ip | default([]) + [item | combine({'ip': (item.job_name == 'windows') | ternary(windows_ipv4, 'localhost') })] }}"
+      with_items: "{{ exporters }}"
+
+    - name: Print exporters_with_ip for debug
+      debug:
+        var: exporters_with_ip
+
+    - name: Render Prometheus config as preview (do not overwrite!)
+      template:
+        src: "../templates/prometheus.yml.j2"
+        dest: "{{ prometheus_config_preview }}"
+      vars:
+        prometheus_scrape_configs: "{{ exporters_with_ip }}"
+
+    - name: Overwrite prometheus.yml with generated config
+      copy:
+        src: "{{ prometheus_config_preview }}"
+        dest: "{{ prometheus_config }}"
+        owner: root
+        group: root
+        mode: 0644
+      become: true
+
+    - name: Restart Prometheus service
+      systemd:
+        name: prometheus
+        state: restarted
+      become: true

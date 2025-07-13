@@ -1,0 +1,30 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+remote_write:
+  - url: {{ grafana_cloud_url | quote }}
+    basic_auth:
+      username: {{ grafana_cloud_username | quote }}
+      password: {{ grafana_cloud_password | quote }}
+
+scrape_configs:
+{% for item in exporters_with_ip %}
+  - job_name: "{{ item.job_name }}"
+    static_configs:
+      - targets:
+          - "{{ item.ip }}:{{ item.port }}"
+        labels:
+          exporter: "{{ item.name }}"
+          type: "{{ item.job_name }}"
+{% endfor %}

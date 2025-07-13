@@ -1,0 +1,31 @@
+version: '3'
+services:
+  myapp1:
+    image: myapp1:latest
+    ports:
+      - "8001:8000"
+  myapp1_exporter:
+    image: prom/node-exporter:latest
+    network_mode: "service:myapp1"  # myapp1 컨테이너와 같은 네트워크/네임스페이스 사용
+    depends_on:
+      - myapp1
+
+  myapp2:
+    image: myapp2:latest
+    ports:
+      - "8002:8000"
+  myapp2_exporter:
+    image: prom/node-exporter:latest
+    network_mode: "service:myapp2"
+    depends_on:
+      - myapp2
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - myapp1_exporter
+      - myapp2_exporter

@@ -1,0 +1,33 @@
+- name: Run Exporters
+  hosts: localhost
+  gather_facts: false
+
+  vars_files:
+    - ../vars/exporters.yml
+
+  vars:
+    interface_alias: "이더넷"
+    windows_ip: "{{ lookup('pipe', 'powershell.exe -Command \"(Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias ''%s'').IPAddress\"' % interface_alias) }}"
+
+  tasks:
+    - name: Run windows_exporter (Windows)
+      shell: |
+        nohup {{ item.exec_path }} > /tmp/{{ item.name }}.log 2>&1 &
+      when: item.job_name == 'windows'
+      with_items: "{{ exporters }}"
+
+    - name: Run exporters (Linux/WSL)
+      shell: |
+        nohup {{ item.exec_path }} {{ item.options }} {{ item.args }} > /tmp/{{ item.name }}.log 2>&1 &
+      when: item.job_name != 'windows'
+      with_items: "{{ exporters }}"
+
+    - name: Check Exporter Status (HTTP endpoint)
+      uri:
+        url: "{% if item.job_name == 'windows' %}http://{{ windows_ip }}:{{ item.port }}/metrics{% else %}http://localhost:{{ item.port }}/metrics{% endif %}"
+        method: GET
+        status_code: 200
+        return_content: no
+      with_items: "{{ exporters }}"
+      ignore_errors: yes
+      register: exporter_status

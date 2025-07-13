@@ -1,0 +1,17 @@
+- name: Get Windows & Public IPv4 Address
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    interface_alias: "이더넷"
+    windows_ipv4: "{{ lookup('pipe', 'powershell.exe -Command \"(Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias ''%s'').IPAddress\"' % interface_alias) }}"
+    public_ipv4: "{{ lookup('pipe', 'curl -s https://api.ipify.org') }}"
+
+  tasks:
+    - name: Print Windows IPv4 Address (내부 IP)
+      debug:
+        msg: "Windows IPv4 Address: {{ windows_ipv4 }}"
+
+    - name: Print Public IPv4 Address (공인 IP)
+      debug:
+        msg: "Public IPv4 Address: {{ public_ipv4 }}"
