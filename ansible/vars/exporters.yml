@@ -13,9 +13,8 @@ exporters:
     options: '--web.listen-address=":9100"'
     args: ""
 
-  # - name: docker_node_exporter
-  #   exec_path: "/usr/local/bin/node_exporter"
-  #   port: 9100
-  #   job_name: "docker"
-  #   target: "{{ docker_ip }}:9100"
-  #   args: ""
+  - name: cadvisor
+    port: 58080
+    job_name: "cadvisor"
+    options: ""
+    args: ""
