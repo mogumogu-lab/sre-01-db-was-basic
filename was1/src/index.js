@@ -1,16 +1,24 @@
+import fastifyWebsocket from '@fastify/websocket';
 import Fastify from 'fastify';
+import itemsRoutes from './routes/items.js';
+
 
 const fastify = Fastify({ logger: true });
 
-fastify.get('/', async (request, reply) => {
-    return { hello: 'from was1' };
-});
+fastify.register(itemsRoutes);
+fastify.register(fastifyWebsocket);
+
+fastify.get('/', async () => ({ hello: 'from API Gateway' }));
 
 fastify.listen({ port: 3000, host: '0.0.0.0' })
-    .then(address => {
-        fastify.log.info(`Server listening at ${address}`);
-    })
+    .then(address => fastify.log.info(`Server listening at ${address}`))
     .catch(err => {
         fastify.log.error(err);
         process.exit(1);
     });
+
+fastify.get('/ws', { websocket: true }, (conn, req) => {
+    conn.socket.on('message', message => {
+        conn.socket.send(`Echo: ${message}`);
+    });
+});
