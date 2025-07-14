@@ -12,7 +12,8 @@
         if [ -n "$pids" ]; then
           kill $pids
         fi
-      with_items: "{{ exporters }}"      
+      with_items: "{{ exporters }}"
+      when: item.exec_path is defined
       register: kill_results
       failed_when: (kill_results.rc is defined and kill_results.rc not in [0, -15, 143])
       ignore_errors: yes

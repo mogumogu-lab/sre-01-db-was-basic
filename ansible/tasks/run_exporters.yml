@@ -19,7 +19,7 @@
     - name: Run exporters (Linux/WSL)
       shell: |
         nohup {{ item.exec_path }} {{ item.options }} {{ item.args }} > /tmp/{{ item.name }}.log 2>&1 &
-      when: item.job_name != 'windows'
+      when: (item.job_name != 'windows') and (item.job_name != 'mac')
       with_items: "{{ exporters }}"
 
     - name: Check Exporter Status (HTTP endpoint)
