@@ -19,7 +19,7 @@
     - name: Run exporters (Linux/WSL)
       shell: |
         nohup {{ item.exec_path }} {{ item.options }} {{ item.args }} > /tmp/{{ item.name }}.log 2>&1 &
-      when: (item.job_name != 'windows') and (item.job_name != 'mac')
+      when: (item.job_name != 'windows') and (item.job_name != 'mac') and (item.exec_path is defined)
       with_items: "{{ exporters }}"
 
     - name: Check Exporter Status (HTTP endpoint)
@@ -29,5 +29,6 @@
         status_code: 200
         return_content: no
       with_items: "{{ exporters }}"
+      when: item.exec_path is defined and item.port is defined
       ignore_errors: yes
       register: exporter_status
