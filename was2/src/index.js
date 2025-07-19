@@ -64,7 +64,7 @@ fastify.delete('/items/:id', async (req, reply) => {
 
 fastify.get('/', async () => ({ hello: 'from was2' }));
 
-fastify.listen({ port: 3000, host: '0.0.0.0' })
+fastify.listen({ port: 53001, host: '0.0.0.0' })
     .then(address => fastify.log.info(`Server listening at ${address}`))
     .catch(err => {
         fastify.log.error(err);

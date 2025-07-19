@@ -10,7 +10,7 @@ fastify.register(fastifyWebsocket);
 
 fastify.get('/', async () => ({ hello: 'from API Gateway' }));
 
-fastify.listen({ port: 3000, host: '0.0.0.0', backlog: 2048 })
+fastify.listen({ port: 53000, host: '0.0.0.0', backlog: 2048 })
     .then(address => fastify.log.info(`Server listening at ${address}`))
     .catch(err => {
         fastify.log.error(err);
