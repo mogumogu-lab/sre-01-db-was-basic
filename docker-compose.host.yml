@@ -23,11 +23,6 @@ services:
         limits:
           cpus: '2.0'
           memory: 4g
-    ulimits:
-      nofile:
-        soft: 65535
-        hard: 65535
-      nproc: 65535
 
   was2:
     build:
@@ -57,6 +52,7 @@ services:
   postgres:
     image: postgres:latest
     container_name: postgres_defense
+    command: postgres -p 55432 
     ports:
       - "55432:5432"
     environment:
