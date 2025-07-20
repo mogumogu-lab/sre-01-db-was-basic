@@ -1,13 +1,13 @@
 services:
   was1:
     build:
-      context: ./was1
+      context: ./was
       dockerfile: Dockerfile
-    container_name: was1
+    container_name: was
     ports:
-      - "53000:3000"
+      - "53000:53000"
     environment:
-      - POSTGRES_HOST=postgres_defense
+      - POSTGRES_HOST=postgres-defense
       - POSTGRES_PORT=5432
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
@@ -15,7 +15,7 @@ services:
     networks:
       - defense
     volumes:
-      - ./was1:/app
+      - ./was:/app
     working_dir: /app
     command: pnpm dev
     deploy:
@@ -29,34 +29,9 @@ services:
         hard: 65535
       nproc: 65535
 
-  was2:
-    build:
-      context: ./was2
-      dockerfile: Dockerfile
-    container_name: was2
-    ports:
-      - "53001:3000"
-    environment:
-      - POSTGRES_HOST=postgres_defense
-      - POSTGRES_PORT=5432
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=postgres_defense
-    networks:
-      - defense
-    volumes:
-      - ./was2:/app
-    working_dir: /app
-    command: pnpm dev
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 4g
-
   postgres:
     image: postgres:latest
-    container_name: postgres_defense
+    container_name: postgres-defense
     ports:
       - "55432:5432"
     environment:
@@ -64,7 +39,7 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=postgres_defense
     volumes:
-      - ./was2/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - pgdata_defense:/var/lib/postgresql/data
     networks:
       - defense
@@ -73,19 +48,6 @@ services:
         limits:
           cpus: '2.0'
           memory: 4g
-
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    container_name: cadvisor
-    ports:
-      - "58080:8080"
-    networks:
-      - defense
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
 
   iperf3-server:
     image: networkstatic/iperf3

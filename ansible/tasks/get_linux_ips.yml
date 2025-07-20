@@ -1,0 +1,17 @@
+- name: Get Linux & Public IPv4 Address
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    interface_name: "enp5s0"
+    linux_ipv4: "{{ lookup('pipe', 'ip -4 addr show {{ interface_name }} | grep -oP \"(?<=inet\\s)\\d+(\\.\\d+){3}\"') }}"
+    public_ipv4: "{{ lookup('pipe', 'curl -s https://api.ipify.org') }}"
+
+  tasks:
+    - name: Print Linux IPv4 Address (내부 IP)
+      debug:
+        msg: "Linux IPv4 Address: {{ linux_ipv4 }}"
+
+    - name: Print Public IPv4 Address (공인 IP)
+      debug:
+        msg: "Public IPv4 Address: {{ public_ipv4 }}"
