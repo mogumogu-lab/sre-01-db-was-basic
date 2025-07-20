@@ -1,12 +1,13 @@
 import fastifyWebsocket from '@fastify/websocket';
 import Fastify from 'fastify';
+import expensiveRoutes from './routes/expensive.js';
 import itemsRoutes from './routes/items.js';
-
 
 const fastify = Fastify({ logger: true });
 
 fastify.register(itemsRoutes);
-fastify.register(fastifyWebsocket);
+fastify.register(expensiveRoutes);
+fastify.register(fastifyWebsocket)
 
 fastify.get('/', async () => ({ hello: 'from API Gateway' }));
 
