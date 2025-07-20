@@ -49,4 +49,20 @@ export default async function expensiveRoutes(fastify, opts) {
             return reply.code(500).send({ error: err.message });
         }
     });
+
+    fastify.put('/expensive/stress/:id', async (req, reply) => {
+    const id = Number(req.params.id);
+    const { name } = req.body;
+    try {
+        // 동시에 여러 VU가 같은 row(id) 업데이트 → 락 경합 발생
+        await pool.query(
+            'UPDATE items SET name = $1 WHERE id = $2',
+            [name, id]
+        );
+        return { ok: true };
+    } catch (err) {
+        req.log.error(err);
+        return reply.code(500).send({ error: err.message });
+    }
+});
 }
